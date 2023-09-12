@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relidmongodb01
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      volumes:
+      - name: db-volume
+        persistentVolumeClaim:
+          claimName: dbdata-pvc
+      hostname: relidmongodb01
+      containers:
+      - name: relidmongodb01
+        image: relidacr.azurecr.io/mongodb:23.02.02
+        command: ["mongod"]
+        args: ["--config", "/mongo.yml"]
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "400m"
+        ports:
+        - containerPort: 18018
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongo-secret
+                key: mongo-user
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                name: mongo-secret
+                key: mongo-password
+        volumeMounts:
+            - mountPath: /data/db
+              name: db-volume
+      #nodeSelector:
+      #  kubernetes.io/role: agent
+      #  type: virtual-kubelet
+      #tolerations:
+      #- key: virtual-kubelet.io/provider
+      #  operator: Exists
+      imagePullSecrets:
+        - name: regcred
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 18018
+      targetPort: 18018
