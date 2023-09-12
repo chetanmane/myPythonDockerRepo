@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relidrabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      #hostAliases:
+      #  - hostnames:
+      #    - "relidmongodb01"
+      #    ip: "10.0.74.12"
+      volumes:
+      - name: rabbitmqlogs
+        persistentVolumeClaim:
+          claimName: rabbitmqlogs-pvc
+      containers:
+      - name: relidrabbitmq
+        image: relidacr.azurecr.io/testrabb:v1
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "100m"
+          limits:
+            memory: "300Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 5671
+        volumeMounts:
+            - mountPath: /var/log/rabbitmq
+              name: rabbitmqlogs
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - protocol: TCP
+      port: 5671
+      targetPort: 5671
