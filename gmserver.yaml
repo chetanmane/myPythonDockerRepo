@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gmserver230203
+  namespace: chetan-test
+  labels:
+    app: gmserver230203
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gmserver230203
+  template:
+    metadata:
+      labels:
+        app: gmserver230203
+    spec:
+      containers:
+      - name: gmserver
+        image: relidacr.azurecr.io/23.02.03:gmserver-2709
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "2048Mi"
+            cpu: "600m"
+        ports:
+        - containerPort: 8443
+      imagePullSecrets:
+        - name: regcred
+      #nodeName: aks-agentpool-13588197-vmss00000h
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gmserver230203-service
+  namespace: chetan-test
+spec:
+  type: LoadBalancer
+  selector:
+    app: gmserver230203
+  ports:
+    - protocol: TCP
+      port: 8443
