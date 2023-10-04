@@ -20,7 +20,7 @@ spec:
       #    - "relidmongodb01"
       #    ip: "10.0.74.12"
       volumes:
-      - name: rabbitmq-certs230203
+      - name: rabbitmq-certs
         persistentVolumeClaim:
           claimName: relidmqcerts230203-pvc
       containers:
@@ -37,7 +37,7 @@ spec:
         - containerPort: 5671
         volumeMounts:
             - mountPath: /ssl-certs
-              name: rabbcerts-vol
+              name: rabbitmq-certs
       imagePullSecrets:
         - name: regcred
 ---
