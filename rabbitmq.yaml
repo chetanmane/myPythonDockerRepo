@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: relidrabbitmq
-  namespace: chetan-test
+  name: relidrabbitmq-230203
+  namespace: relid-23-02-03
   labels:
     app: rabbitmq
 spec:
@@ -19,10 +19,10 @@ spec:
       #  - hostnames:
       #    - "relidmongodb01"
       #    ip: "10.0.74.12"
-      #volumes:
-      #- name: rabbitmqlogs
-      #  persistentVolumeClaim:
-      #    claimName: rabbitmqlogs-pvc
+      volumes:
+      - name: rabbitmq-certs230203
+        persistentVolumeClaim:
+          claimName: relidmqcerts230203-pvc
       containers:
       - name: relidrabbitmq
         image: relidacr.azurecr.io/23.02.03:rabbitmq-2909
@@ -35,9 +35,9 @@ spec:
             cpu: "200m"
         ports:
         - containerPort: 5671
-        #volumeMounts:
-        #    - mountPath: /var/log/rabbitmq
-        #      name: rabbitmqlogs
+        volumeMounts:
+            - mountPath: /ssl-certs
+              name: rabbcerts-vol
       imagePullSecrets:
         - name: regcred
 ---
@@ -45,7 +45,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: rabbitmq-service
-  namespace: chetan-test
+  namespace: relid-23-02-03
 spec:
   selector:
     app: rabbitmq
