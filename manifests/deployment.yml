@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: chetanmanemypythondockerrepo 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chetanmanemypythondockerrepo
+  template:
+    metadata:
+      labels:
+        app: chetanmanemypythondockerrepo 
+    spec:
+      containers:
+        - name: chetanmanemypythondockerrepo 
+          image: relidacr.azurecr.io/chetanmanemypythondockerrepo
+          ports:
+          - containerPort: 5000
